@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ButtonColor">#212121</color>
+    <color name="Secondary">#8C8C8C</color>
+
+    <color name="TopGradient">#656565</color>
+    <color name="BotGradient">#00000000</color>
+</resources>
