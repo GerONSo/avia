@@ -1,5 +1,6 @@
 package com.serrriy.aviascan
 
+import com.serrriy.aviascan.utils.TokenProvider
 import io.ktor.client.HttpClient
 
 interface Platform {
@@ -8,4 +9,6 @@ interface Platform {
 
 expect fun getPlatform(): Platform
 
-expect val client: HttpClient
+expect fun getClient(tokenProvider: TokenProvider): HttpClient
+
+expect val aviationStackClient: HttpClient

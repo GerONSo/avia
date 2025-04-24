@@ -1,22 +1,22 @@
 package com.serrriy.aviascan.interactors
 
-import com.serrriy.aviascan.data.achievements.AchievementResponseDto
+import com.serrriy.aviascan.data.achievements.AchievementListResponse
+import com.serrriy.aviascan.getClient
+import com.serrriy.aviascan.utils.TokenProvider
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.http.path
 
-class AchievementInteractor {
-    fun getAllAchievements(): List<AchievementResponseDto> {
-        return listOf(
-            AchievementResponseDto(
-                image = "https://storage.yandexcloud.net/aviascan-public/achievements/distance_h.png",
-                title = "Spent 10000 miles in the air"
-            ),
-            AchievementResponseDto(
-                image = "https://storage.yandexcloud.net/aviascan-public/achievements/time_n.png",
-                title = "Not yet achieved"
-            ),
-            AchievementResponseDto(
-                image = "https://storage.yandexcloud.net/aviascan-public/achievements/time_n.png",
-                title = "Not yet achieved"
-            ),
-        )
+class AchievementInteractor(
+    private val tokenProvider: TokenProvider,
+) {
+    suspend fun getAllAchievements(userId: String): AchievementListResponse {
+        return getClient(tokenProvider).get {
+            url {
+                path("/achievements/list/$userId")
+            }
+            header("Authorization", "Bearer ${tokenProvider.getAccessToken()}")
+        }.body()
     }
 }

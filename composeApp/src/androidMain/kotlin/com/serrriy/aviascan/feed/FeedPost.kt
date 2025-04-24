@@ -29,8 +29,7 @@ import com.serrriy.aviascan.R
 import com.serrriy.aviascan.feed.data.FeedListItem
 import com.serrriy.aviascan.flights.FullItemInfo
 import com.serrriy.aviascan.flights.data.toFlightListItem
-import com.serrriy.aviascan.flights.toSimpleDate
-import com.serrriy.aviascan.utils.toDateTime
+import kotlinx.datetime.toLocalDateTime
 
 @Composable
 fun FeedItem(feedItem: FeedListItem) {
@@ -42,7 +41,7 @@ fun FeedItem(feedItem: FeedListItem) {
             Row {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(feedItem.profile.avatar)
+                        .data(feedItem.profile.email)
                         .crossfade(true)
                         .build(),
                     error = fallbackIcon,
@@ -57,17 +56,19 @@ fun FeedItem(feedItem: FeedListItem) {
                         fontSize = 16.sp
                     )
                     Text(
-                        text = feedItem.profile.datetime.toDateTime().toSimpleDate(),
+                        text = "${feedItem.post.createdAt.toLocalDateTime().date.dayOfMonth} ${feedItem.post.createdAt.toLocalDateTime().date.month}",
                         color = colorResource(R.color.Secondary)
                     )
                 }
             }
-            Text(
-                text = feedItem.title,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(top = 16.dp)
-            )
+            feedItem.post.title?.let { title ->
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
             Column(modifier = Modifier.padding(top = 16.dp)) {
                 FullItemInfo(
                     item = feedItem.flight.toFlightListItem()
@@ -75,7 +76,7 @@ fun FeedItem(feedItem: FeedListItem) {
             }
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(feedItem.mapSnapshot)
+                    .data(feedItem.post.imageUrl)
                     .crossfade(true)
                     .build(),
                 contentDescription = "Map snapshot",

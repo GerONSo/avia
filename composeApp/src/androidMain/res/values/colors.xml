@@ -2,6 +2,7 @@
 <resources>
     <color name="ButtonColor">#212121</color>
     <color name="Secondary">#8C8C8C</color>
+    <color name="Negative">#CD3131</color>
 
     <color name="TopGradient">#656565</color>
     <color name="BotGradient">#00000000</color>

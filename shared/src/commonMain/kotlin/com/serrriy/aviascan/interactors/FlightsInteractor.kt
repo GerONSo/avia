@@ -1,76 +1,74 @@
 package com.serrriy.aviascan.interactors
 
-import com.serrriy.aviascan.client
-import com.serrriy.aviascan.data.airports.AirportDto
+import com.serrriy.aviascan.data.airports.AirportListResponse
 import com.serrriy.aviascan.data.flights.CreateFlightRequest
 import com.serrriy.aviascan.data.flights.CreateFlightResponse
-import com.serrriy.aviascan.data.flights.FlightListItemDto
+import com.serrriy.aviascan.data.flights.FlightListResponse
+import com.serrriy.aviascan.getClient
+import com.serrriy.aviascan.utils.TokenProvider
+import com.serrriy.aviascan.utils.safeCall
 import io.ktor.client.call.body
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
-import io.ktor.http.URLProtocol
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
+import io.ktor.http.contentType
 import io.ktor.http.path
+import kotlinx.serialization.json.Json
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-class FlightsInteractor {
-    fun getAllFlights(): List<FlightListItemDto> {
-        return listOf(
-            FlightListItemDto(
-                id = "1",
-                departureAirport = AirportDto(
-                    code = "BKK",
-                    name = "Suvarnabhumi Airport",
-                    city = "Bangkok",
-                    country = "Thailand",
-                    latitude = 13.68187665,
-                    longitude = 100.74858027718852,
-                ),
-                arrivalAirport = AirportDto(
-                    code = "AUH",
-                    name = "Abu Dhabi International Airport",
-                    city = "Abu Dhabi",
-                    country = "UAE",
-                    latitude = 24.43189915,
-                    longitude = 54.641976680103,
-                ),
-                date = "2025-01-12T18:30",
-                userId = "123",
-            ),
-            FlightListItemDto(
-                id = "2",
-                departureAirport = AirportDto(
-                    code = "AUH",
-                    name = "Abu Dhabi International Airport",
-                    city = "Abu Dhabi",
-                    country = "UAE",
-                    latitude = 24.43189915,
-                    longitude = 54.641976680103,
-                ),
-                date = "2025-01-12T18:30",
-                arrivalAirport = AirportDto(
-                    code = "LHR",
-                    name = "London Heathrow Airport",
-                    city = "London",
-                    country = "UK",
-                    latitude = 51.46773895,
-                    longitude = -0.4587800741571181,
-                ),
-                userId = "123",
-            ),
-        )
+class FlightsInteractor(
+    private val tokenProvider: TokenProvider
+) {
+    suspend fun getAllFlights(userId: String): FlightListResponse {
+        return getClient(tokenProvider).get {
+            url {
+                path("/flights/list/$userId")
+            }
+        }.body()
     }
 
-    suspend fun addFlight(request: CreateFlightRequest): CreateFlightResponse {
-        return client.get {
-            url {
-                protocol = URLProtocol.HTTP
-                host = "jsonplaceholder.typicode.com"
-                path("/posts")
+    @OptIn(ExperimentalUuidApi::class)
+    suspend fun addFlight(
+        request: CreateFlightRequest,
+        snapshot: ByteArray
+    ): Result<CreateFlightResponse> {
+        return safeCall {
+            getClient(tokenProvider).post {
+                url {
+                    path("/flights/create")
+                }
+
+                setBody(MultiPartFormDataContent(
+                    formData {
+                        append("metadata", Json.encodeToString(request))
+//                        append() {
+//                            contentType()
+//                            append(HttpHeaders.ContentDisposition, "form-data; name=\"metadata\"")
+//                        }
+
+                        append("image", snapshot, Headers.build {
+                            contentType(ContentType.Image.JPEG)
+                            append(HttpHeaders.ContentDisposition, "form-data; name=\"image\"; filename=\"${Uuid.random()}.jpg\"")
+                        })
+                    }
+                ))
             }
-//            url {
-//                host = "http://127.0.0.1:8080"
-//                path("flights/create")
-//            }
-//            contentType(ContentType.Application.Json)
-//            setBody(request)
-        }.body()
+        }
+    }
+
+    suspend fun getAirports(): Result<AirportListResponse> {
+        return safeCall {
+            getClient(tokenProvider).get {
+                url {
+                    path("/airports/list")
+                }
+            }
+        }
     }
 }

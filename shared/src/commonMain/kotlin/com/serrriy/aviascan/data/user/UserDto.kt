@@ -3,5 +3,7 @@ package com.serrriy.aviascan.data.user
 data class UserDto(
     val id: String,
     val name: String,
-    val firebaseId: String
+    val email: String,
+    val password: String,
+    val imageUrl: String?,
 )

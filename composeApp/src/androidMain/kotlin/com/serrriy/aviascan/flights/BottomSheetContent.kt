@@ -36,16 +36,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
-import com.serrriy.aviascan.MainScreen
 import com.serrriy.aviascan.R
 import com.serrriy.aviascan.data.airports.AirportDto
 import com.serrriy.aviascan.flights.data.FlightListItem
+import com.serrriy.aviascan.main.MainScreen
 import com.serrriy.aviascan.utils.TimeUtils
 import com.serrriy.aviascan.utils.toDateTime
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toDateTimePeriod
-import kotlinx.datetime.toInstant
+import java.time.Duration
+import java.time.OffsetDateTime
 
 val timeZone = TimeZone.of("Europe/Moscow")
 
@@ -181,7 +180,7 @@ fun MainItemInfo(item: FlightListItem, expanded: Boolean, expandable: Boolean) {
 @Composable
 fun FullItemInfo(item: FlightListItem) {
     Text(getAirportName(item.departure.airport), fontWeight = FontWeight.Bold)
-    Text(item.departure.datetime.toDateTime().time.toString(), fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
+    Text(item.departure.datetime.toDateTime().toLocalTime().toString(), fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
 
     Row {
         Icon(
@@ -202,11 +201,11 @@ fun FullItemInfo(item: FlightListItem) {
         )
     }
     Text(getAirportName(item.arrival.airport), fontWeight = FontWeight.Bold)
-    Text(item.arrival.datetime.toDateTime().time.toString(), fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
+    Text(item.arrival.datetime.toDateTime().toLocalTime().toString(), fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
 }
 
-fun LocalDateTime.toSimpleDate(): String {
-    return "$dayOfMonth ${TimeUtils.getMonth(monthNumber)} $year"
+fun OffsetDateTime.toSimpleDate(): String {
+    return "$dayOfMonth ${TimeUtils.getMonth(monthValue)} $year"
 }
 
 fun getAirportName(airport: AirportDto): String {
@@ -214,6 +213,8 @@ fun getAirportName(airport: AirportDto): String {
 }
 
 fun countFlightTime(item: FlightListItem): String {
-    val length = item.arrival.datetime.toDateTime().toInstant(timeZone) - item.departure.datetime.toDateTime().toInstant(timeZone)
-    return "${length.toDateTimePeriod().hours}h ${length.toDateTimePeriod().minutes}m"
+    val arrival = item.arrival.datetime.toDateTime()
+    val departure = item.departure.datetime.toDateTime()
+    val length = Duration.between(departure, arrival)
+    return "${length.toHours()}h ${length.toMinutes() % 60}m"
 }

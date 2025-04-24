@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,7 +18,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.google.android.gms.maps.model.CameraPosition
@@ -28,20 +32,33 @@ import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
+import com.serrriy.aviascan.repositories.DataStoreRepository
 import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
 
+@Composable
+fun rememberMyViewModel(): BottomSheetViewModel {
+    val context = LocalContext.current
+    val factory = remember {
+        object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return BottomSheetViewModel(dataStoreRepository = DataStoreRepository(context)) as T
+            }
+        }
+    }
+    return viewModel(factory = factory)
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun FlightsScreen(
     navController: NavHostController,
-    bottomSheetViewModel: BottomSheetViewModel = viewModel(),
+    bottomSheetViewModel: BottomSheetViewModel = rememberMyViewModel()
 ) {
     val uiStateBottomSheet by bottomSheetViewModel.uiState.collectAsState()
     val uiSettings by remember { mutableStateOf(MapUiSettings(zoomControlsEnabled = false)) }
-    val default = LatLng(37.062672,37.3817645)
+    val default = LatLng(37.062672, 37.3817645)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(default, 1f)
     }
@@ -52,6 +69,11 @@ fun FlightsScreen(
             SheetValue.Expanded at contentHeight
         })
     val scaffoldState = rememberBottomSheetScaffoldState(sheetState)
+
+    LaunchedEffect(Unit) {
+        bottomSheetViewModel.getAllFlights()
+    }
+
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetContent = {
@@ -66,7 +88,12 @@ fun FlightsScreen(
                 uiSettings = uiSettings,
             ) {
                 uiStateBottomSheet.flightsList.map { flight ->
-                    val coords = listOf(flight.departure.airport.latitude, flight.departure.airport.longitude, flight.arrival.airport.latitude, flight.arrival.airport.longitude)
+                    val coords = listOf(
+                        flight.departure.airport.latitude,
+                        flight.departure.airport.longitude,
+                        flight.arrival.airport.latitude,
+                        flight.arrival.airport.longitude
+                    )
                     if (coords.all { it != null }) {
                         Polyline(
                             points = listOf(
@@ -86,7 +113,12 @@ fun FlightsScreen(
 
                         listOf(flight.departure, flight.arrival).map { target ->
                             MarkerComposable(
-                                state = rememberMarkerState(position = LatLng(target.airport.latitude!!, target.airport.longitude!!)),
+                                state = rememberMarkerState(
+                                    position = LatLng(
+                                        target.airport.latitude!!,
+                                        target.airport.longitude!!
+                                    )
+                                ),
                                 anchor = Offset(0.5f, 0.5f)
                             ) {
                                 Box(

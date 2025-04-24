@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AchievementResponseDto(
     val image: String,
-    val title: String,
+    val title: String?,
 )

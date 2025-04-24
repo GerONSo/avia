@@ -14,14 +14,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.serrriy.aviascan.utils.BarcodeAnalyzer
 
 @Composable
 fun CameraScreen(
     navController: NavHostController,
-    viewModel: AddFlightViewModel = viewModel(),
+    viewModel: AddFlightViewModel,
 ) {
     val localContext = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current

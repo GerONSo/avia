@@ -13,14 +13,17 @@ plugins {
     kotlin("plugin.serialization") version "2.1.0" apply false
 }
 
-val mapKitApiKey by extra(getMapkitApiKey())
+val apiKeys by extra(getMapkitApiKey())
 
-fun getMapkitApiKey(): String {
+fun getMapkitApiKey(): Map<String, String> {
     val properties = Properties()
     project.file("local.properties").inputStream().also {
         properties.load(it)
     }
-    return properties.getProperty("MAPKIT_API_KEY", "")
+    return mapOf(
+        "mapKit" to properties.getProperty("MAPKIT_API_KEY", ""),
+        "aviationStack" to properties.getProperty("AVIATIONSTACK_API_KEY", "")
+    )
 }
 
 dockerRun {

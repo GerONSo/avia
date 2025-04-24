@@ -8,6 +8,8 @@ data class FlightListItemDto(
     val id: String,
     val departureAirport: AirportDto,
     val arrivalAirport: AirportDto,
-    val date: String,
+    val flightDepartureTime: String,
+    val flightArrivalTime: String,
+    val distance: Double,
     val userId: String
 )

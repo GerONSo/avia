@@ -1,37 +1,31 @@
 package com.serrriy.aviascan.interactors
 
-import com.serrriy.aviascan.client
+import com.serrriy.aviascan.aviationStackClient
 import com.serrriy.aviascan.data.aviation_stack.AviationStackGetFlightInfoRequest
 import com.serrriy.aviascan.data.aviation_stack.AviationStackGetFlightInfoResponse
-import com.serrriy.aviascan.utils.NetworkError
-import com.serrriy.aviascan.utils.Result
-import io.ktor.client.call.body
+import com.serrriy.aviascan.utils.safeCall
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.URLProtocol
 import io.ktor.http.path
-import io.ktor.util.network.UnresolvedAddressException
-import kotlinx.serialization.SerializationException
 
 class AviationStackInteractor {
 
-    suspend fun getFlightInfo(request: AviationStackGetFlightInfoRequest): Result<AviationStackGetFlightInfoResponse, NetworkError> {
-        val a = try {
-            client.get {
+    suspend fun getFlightInfo(request: AviationStackGetFlightInfoRequest): Result<AviationStackGetFlightInfoResponse> {
+        return safeCall {
+            aviationStackClient.get {
                 url {
                     protocol = URLProtocol.HTTPS
                     host = "api.aviationstack.com"
                     path("/v1/flights")
                     parameter("access_key", request.accessKey)
-                    parameter("flight_iata", request.flightNumber)
-                    parameter("flight_date", request.flightDate)
+                    parameter("limit", 5)
+                    request.flightNumber?.let { parameter("flight_iata", request.flightNumber) }
+                    request.flightDate?.let { parameter("flight_date", request.flightDate) }
+                    request.departureCode?.let { parameter("dep_iata", request.departureCode) }
+                    request.arrivalCode?.let { parameter("arr_iata", request.arrivalCode) }
                 }
             }
-        } catch(e: UnresolvedAddressException) {
-            return Result.Error(NetworkError.NO_INTERNET)
-        } catch(e: SerializationException) {
-            return Result.Error(NetworkError.SERIALIZATION)
         }
-        return Result.Success(a.body())
     }
 }

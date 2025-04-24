@@ -37,6 +37,9 @@ kotlin {
             implementation(libs.androidx.camera.lifecycle)
             implementation(libs.androidx.camera.view)
             implementation(libs.barcode.scanning)
+            implementation(libs.java.jwt)
+            implementation(libs.androidx.datastore.preferences)
+            implementation(libs.jwtdecode)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -64,8 +67,9 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        val mapKitApiKey: String by rootProject.extra
-        manifestPlaceholders["MAPKIT_API_KEY"] = mapKitApiKey
+        val apiKeys: Map<String, String> by rootProject.extra
+        manifestPlaceholders["MAPKIT_API_KEY"] = apiKeys["mapKit"] ?: ""
+        manifestPlaceholders["AVIATIONSTACK_API_KEY"] = apiKeys["aviationStack"] ?: ""
     }
     packaging {
         resources {

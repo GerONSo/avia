@@ -8,6 +8,6 @@ data class AirportDto(
     val code: String,
     val city: String,
     val country: String,
-    val latitude: Double? = null,
-    val longitude: Double? = null,
+    val latitude: Double,
+    val longitude: Double,
 )

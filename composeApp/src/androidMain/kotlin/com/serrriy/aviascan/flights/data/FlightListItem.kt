@@ -8,6 +8,7 @@ data class FlightListItem(
     val departure: FlightTargetDto,
     val arrival: FlightTargetDto,
     var expanded: Boolean,
+    val distance: String,
 )
 
 data class FlightTargetDto(
@@ -19,11 +20,12 @@ fun FlightListItemDto.toFlightListItem() = FlightListItem(
     id = id,
     departure = FlightTargetDto(
         airport = departureAirport,
-        datetime = "2025-01-12T13:40",
+        datetime = flightDepartureTime,
     ),
     arrival = FlightTargetDto(
         airport = arrivalAirport,
-        datetime = "2025-01-12T13:40",
+        datetime = flightArrivalTime,
     ),
     expanded = false,
+    distance = "$distance",
 )

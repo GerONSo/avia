@@ -1,5 +1,6 @@
 package com.serrriy.aviascan
 
+import com.serrriy.aviascan.utils.TokenProvider
 import io.ktor.client.HttpClient
 
 class JVMPlatform: Platform {
@@ -7,5 +8,9 @@ class JVMPlatform: Platform {
 }
 
 actual fun getPlatform(): Platform = JVMPlatform()
-actual val client: HttpClient
-    get() = TODO("Not yet implemented")
+actual fun getClient(tokenProvider: TokenProvider): HttpClient {
+    TODO("Not yet implemented")
+}
+
+actual val aviationStackClient: HttpClient
+    get() = TODO()

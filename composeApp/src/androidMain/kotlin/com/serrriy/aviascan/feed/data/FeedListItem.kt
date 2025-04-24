@@ -1,19 +1,18 @@
 package com.serrriy.aviascan.feed.data
 
 import com.serrriy.aviascan.data.feed.FeedListItemDto
-import com.serrriy.aviascan.data.feed.FeedListItemProfileDto
 import com.serrriy.aviascan.data.flights.FlightListItemDto
+import com.serrriy.aviascan.data.posts.PostDto
+import com.serrriy.aviascan.data.user.UserResponse
 
 data class FeedListItem(
-    val profile: FeedListItemProfileDto,
-    val mapSnapshot: String,
-    val title: String,
+    val profile: UserResponse,
+    val post: PostDto,
     val flight: FlightListItemDto,
 )
 
 fun FeedListItemDto.toFeedListItem() = FeedListItem(
-    profile = profile,
-    mapSnapshot = mapSnapshot,
-    title = title,
+    profile = user,
+    post = post,
     flight = flight,
 )

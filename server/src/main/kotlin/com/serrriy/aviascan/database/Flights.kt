@@ -4,79 +4,71 @@ import com.serrriy.aviascan.models.FlightDto
 import com.serrriy.aviascan.database.Users
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
 
 object Flights : UUIDTable() {
     val airportFrom = text("airport_from")
     val airportTo = text("airport_to")
-    val date = text("date")
+    val flightDepartureTime = datetime("flight_departure_time")
+    val flightArrivalTime = datetime("flight_arrival_time")
+    val flightDepartureTimeZone = text("flight_departure_timezone")
+    val flightArrivalTimeZone = text("flight_arrival_timezone")
     val flightCode = text("flight_code")
     val userId = reference("user_id", Users)
-    val flightDistance = float("flight_distance")
-    val flightTime = float("flight_time")
 }
 
 class FlightRepository {
     fun create(
         airportFrom: String,
         airportTo: String,
-        date: String,
+        flightDepartureTime: LocalDateTime,
+        flightArrivalTime: LocalDateTime,
+        flightDepartureTimeZone: String,
+        flightArrivalTimeZone: String,
         flightCode: String,
         userId: String,
-        flightDistance: Float,
-        flightTime: Float,
     ): FlightDto = transaction {
         val id = UUID.randomUUID()
         Flights.insert {
             it[Flights.id] = id
             it[Flights.airportFrom] = airportFrom
             it[Flights.airportTo] = airportTo
-            it[Flights.date] = date
+            it[Flights.flightDepartureTime] = flightDepartureTime
+            it[Flights.flightArrivalTime] = flightArrivalTime
+            it[Flights.flightDepartureTimeZone] = flightDepartureTimeZone
+            it[Flights.flightArrivalTimeZone] = flightArrivalTimeZone
             it[Flights.flightCode] = flightCode
             it[Flights.userId] = UUID.fromString(userId)
-            it[Flights.flightDistance] = flightDistance
-            it[Flights.flightTime] = flightTime
         }
         FlightDto(
             id = id.toString(),
             airportFrom = airportFrom,
             airportTo = airportTo,
-            date = date,
+            flightDepartureTime = flightDepartureTime.atZone(ZoneId.of(flightDepartureTimeZone)).toOffsetDateTime(),
+            flightArrivalTime = flightArrivalTime.atZone(ZoneId.of(flightArrivalTimeZone)).toOffsetDateTime(),
             flightCode = flightCode,
             userId = userId,
-            flightDistance = flightDistance,
-            flightTime = flightTime,
         )
-    }
-
-    fun list(): List<FlightDto> = transaction {
-        Flights.selectAll().map { row -> 
-            FlightDto(
-                id = row[Flights.id].toString(),
-                airportFrom = row[Flights.airportFrom],
-                airportTo = row[Flights.airportTo],
-                date = row[Flights.date],
-                flightCode = row[Flights.flightCode],
-                userId = row[Flights.userId].toString(),
-                flightDistance = row[Flights.flightDistance],
-                flightTime = row[Flights.flightTime],
-            )
-        }
     }
 
     fun getByUserId(userId: String): List<FlightDto> = transaction {
         Flights.select { Flights.userId eq UUID.fromString(userId) }
             .map { row -> 
+                val departureTimeZone = row[Flights.flightDepartureTimeZone]
+                val arrivalTimeZone = row[Flights.flightArrivalTimeZone]
                 FlightDto(
                     id = row[Flights.id].toString(),
                     airportFrom = row[Flights.airportFrom],
                     airportTo = row[Flights.airportTo],
-                    date = row[Flights.date],
+                    flightDepartureTime = row[Flights.flightDepartureTime].atZone(ZoneId.of(departureTimeZone)).toOffsetDateTime(),
+                    flightArrivalTime = row[Flights.flightArrivalTime].atZone(ZoneId.of(arrivalTimeZone)).toOffsetDateTime(),
                     flightCode = row[Flights.flightCode],
                     userId = row[Flights.userId].toString(),
-                    flightDistance = row[Flights.flightDistance],
-                    flightTime = row[Flights.flightTime],
                 )
             }
     }

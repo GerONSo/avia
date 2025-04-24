@@ -3,6 +3,7 @@
     <string name="add_flight">Add flight</string>
     <string name="feed">Feed</string>
     <string name="flights">Flights</string>
-    <string name="achievements">Achievements</string>
+    <string name="profile">Profile</string>
     <string name="camera">Camera</string>
+    <string name="subscriptions">Subscriptions</string>
 </resources>

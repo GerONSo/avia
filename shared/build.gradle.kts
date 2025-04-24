@@ -1,6 +1,6 @@
+
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -37,6 +37,7 @@ kotlin {
             implementation(libs.ktor.client.logging) // Logging (Optional)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.auth)
         }
 
         val androidMain by getting {
@@ -68,8 +69,9 @@ android {
     }
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
-        val mapKitApiKey: String by rootProject.extra
-        buildConfigField("String", "MAPKIT_API_KEY", "\"${mapKitApiKey}\"")
+        val apiKeys: Map<String, String> by rootProject.extra
+        buildConfigField("String", "MAPKIT_API_KEY", "\"${apiKeys["mapKit"] ?: ""}\"")
+        buildConfigField("String", "AVIATIONSTACK_API_KEY", "\"${apiKeys["aviationStack"] ?: ""}\"")
     }
     buildFeatures {
         buildConfig = true

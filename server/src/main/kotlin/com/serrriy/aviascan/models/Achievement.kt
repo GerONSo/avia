@@ -5,5 +5,5 @@ data class AchievementDto(
     val name: String,
     val isHidden: Boolean,
     val imageUrl: String,
-    val text: String
+    val text: String?
 )

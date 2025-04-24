@@ -17,7 +17,9 @@ class AirportRepository(private val airportsFilename: String) {
                 name = row["name"] ?: throw IllegalArgumentException("Missing airport name"),
                 code = code,
                 city = row["city"] ?: throw IllegalArgumentException("Missing airport city"),
-                country = row["country"] ?: throw IllegalArgumentException("Missing airport country")
+                country = row["country"] ?: throw IllegalArgumentException("Missing airport country"),
+                latitude = row["latitude"]?.toDouble() ?: throw IllegalArgumentException("Missing airport latitude"),
+                longitude = row["longitude"]?.toDouble() ?: throw IllegalArgumentException("Missing airport longitude"),
             )
         }
     }

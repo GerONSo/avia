@@ -1,12 +1,9 @@
 package com.serrriy.aviascan.feed
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
@@ -16,7 +13,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,9 +23,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -37,48 +31,47 @@ import com.serrriy.aviascan.R
 import com.serrriy.aviascan.feed.data.OwnFeedListItem
 import com.serrriy.aviascan.flights.FullItemInfo
 import com.serrriy.aviascan.flights.data.toFlightListItem
-import com.serrriy.aviascan.flights.toSimpleDate
-import com.serrriy.aviascan.utils.toDateTime
 
 @Composable
 fun OwnFeedPost(
     feedItem: OwnFeedListItem,
     uiState: FeedState,
     viewModel: FeedViewModel,
+    index: Int,
 ) {
     val fallbackIcon = rememberVectorPainter(Icons.Rounded.AccountCircle)
     Card(
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
     ) {
         Column(Modifier.padding(16.dp)) {
-            Row {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(feedItem.profile.avatar)
-                        .crossfade(true)
-                        .build(),
-                    error = fallbackIcon,
-                    contentDescription = "User avatar",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.width(50.dp).height(50.dp).clip(CircleShape),
-                )
-                Column(modifier = Modifier.padding(start = 8.dp)) {
-                    Text(
-                        text = feedItem.profile.name,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
-                    Text(
-                        text = feedItem.profile.datetime.toDateTime().toSimpleDate(),
-                        color = colorResource(R.color.Secondary)
-                    )
-                }
-            }
+//            Row {
+//                AsyncImage(
+//                    model = ImageRequest.Builder(LocalContext.current)
+//                        .data(feedItem.profile.email)
+//                        .crossfade(true)
+//                        .build(),
+//                    error = fallbackIcon,
+//                    contentDescription = "User avatar",
+//                    contentScale = ContentScale.Crop,
+//                    modifier = Modifier.width(50.dp).height(50.dp).clip(CircleShape),
+//                )
+//                Column(modifier = Modifier.padding(start = 8.dp)) {
+//                    Text(
+//                        text = feedItem.profile.name,
+//                        fontWeight = FontWeight.Bold,
+//                        fontSize = 16.sp
+//                    )
+//                    Text(
+//                        text = "${feedItem.post.createdAt.toLocalDateTime().date.dayOfMonth} ${feedItem.post.createdAt.toLocalDateTime().date.month}",
+//                        color = colorResource(R.color.Secondary)
+//                    )
+//                }
+//            }
             OutlinedTextField(
-                value = uiState.titleInput,
-                onValueChange = { viewModel.titleChanged(it) },
+                value = feedItem.post.title ?: "",
+                onValueChange = { viewModel.titleChanged(index, it) },
                 label = { Text("Post title") },
-                modifier = Modifier.padding(top = 16.dp, end = 8.dp).fillMaxWidth(),
+                modifier = Modifier.padding(end = 8.dp).fillMaxWidth(),
                 colors = TextFieldDefaults.colors(
                     focusedTextColor = Color.Black,
                     cursorColor = Color.Black,
@@ -101,7 +94,7 @@ fun OwnFeedPost(
             }
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(feedItem.mapSnapshot)
+                    .data(feedItem.post.imageUrl)
                     .crossfade(true)
                     .build(),
                 contentDescription = "Map snapshot",
@@ -119,7 +112,9 @@ fun OwnFeedPost(
                     .align(Alignment.CenterHorizontally)
                     .fillMaxWidth(0.7f).height(50.dp)
                     .padding(end = 16.dp),
-                onClick = { }
+                onClick = {
+                    viewModel.publish(index)
+                }
             ) {
                 Text("Post")
             }

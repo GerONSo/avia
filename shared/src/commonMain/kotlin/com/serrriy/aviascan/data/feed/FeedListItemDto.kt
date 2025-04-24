@@ -1,16 +1,18 @@
 package com.serrriy.aviascan.data.feed
 
 import com.serrriy.aviascan.data.flights.FlightListItemDto
+import com.serrriy.aviascan.data.posts.PostDto
+import com.serrriy.aviascan.data.user.UserResponse
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class FeedListItemDto(
-    val profile: FeedListItemProfileDto,
-    val mapSnapshot: String,
-    val title: String,
+    val user: UserResponse,
+    val post: PostDto,
     val flight: FlightListItemDto,
 )
 
-data class FeedListItemProfileDto(
-    val avatar: String,
-    val name: String,
-    val datetime: String,
+@Serializable
+data class FeedListResponse(
+    val posts: List<FeedListItemDto>
 )

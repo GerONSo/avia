@@ -49,10 +49,10 @@ class AchievementRepository {
         getUserAchievements(userId)
     }
 
-    fun getIncompleteByUserId(userId: String): List<AchievementDto> = transaction {
-        val userAchievements = getUserAchievements(userId)
+    fun getIncompleteByUserId(userId: String, getHidden: Boolean = false): List<AchievementDto> = transaction {
+        val userAchievements = getUserAchievements(userId).map { it.name }
         val allActiveAchievements = Achievements
-            .select { Achievements.isHidden eq false }
+            .select { Achievements.isHidden eq getHidden }
             .map { it ->
                 AchievementDto(
                     id = it[Achievements.id].toString(),
@@ -63,6 +63,6 @@ class AchievementRepository {
                 )
         }
 
-        allActiveAchievements.filterNot { it in userAchievements } 
+        allActiveAchievements.filterNot { it.name in userAchievements } 
     }
 }
